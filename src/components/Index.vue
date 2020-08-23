@@ -5,7 +5,7 @@
         <h2 class = 'teal-text'>Scissor Paper Rock</h2>
         <form @submit.prevent="enterGame">
           <label for="name">Enter your name:</label>
-            <input type="text" name="name" v-model="name" autocomplete="off">
+            <input type="text" name="name" v-model="name" autocomplete="off" autofocus>
             
           <div v-if="haveCode">
             <label for="gameID">Enter code:</label>
