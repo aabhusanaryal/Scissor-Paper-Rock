@@ -1,0 +1,151 @@
+<template>
+    <div class="container game">
+        <h2>Hello, welcome {{ownData.name}} Game ID: {{gameID}}</h2>
+
+        <!-- Checking if Opponent's data is received; and if yes showing details -->
+        <span v-if="opponentData"><p>You're playing with {{opponentData.name}}</p>
+            <span v-if="opponentData.selection"><p>{{opponentData.name}} has made a selection!</p></span>
+            
+
+            <div class="selectionBox card">
+            <div class="card-content">
+                <span v-if="!opponentData.selection"><p>Waiting for {{opponentData.name}} to make a selection...</p></span>
+                <div v-if="!ownData.submitted">
+                    <span class="card-title">Please make a selection:</span>
+                    <form @submit.prevent="submitSelection">
+                        <p>
+                        <label>
+                            <input name="group1" type="radio" value="scissor" v-model="ownData.selection"/>
+                            <span>Scissor</span>
+                        </label>
+                        </p>
+
+                        <p>
+                        <label>
+                            <input name="group1" type="radio" value="paper" v-model="ownData.selection"/>
+                            <span>Paper</span>
+                        </label>
+                        </p>
+
+                        <p>
+                        <label>
+                            <input name="group1" type="radio" value="rock" v-model="ownData.selection"/>
+                            <span>Rock</span>
+                        </label>
+                        </p>
+                        <input type="submit"><br><br>
+                        <p v-if="ownData.submitted" class="red-text">You've already submitted your selection!</p>
+                    </form>
+                </div>
+                <span v-if="ownData.submitted && opponentData.submitted">
+                            Your choice: {{ownData.selection}}<br>
+                            {{opponentData.name}}'s choice: {{opponentData.selection}}<br><br>
+                            <h2 v-if="winnerID===playerID" class="green-text">You win!</h2>
+                            <h2 v-else class="red-text">You lose!</h2>
+                </span>
+            </div>
+        </div>
+        </span>
+        <span v-else><p>Waiting for someone to join the game...</p></span>
+    </div>
+</template>
+
+<script lang="ts">
+import db from '@/Firebase/init.js'
+export default{
+    name: 'GameScreen',
+    data() {
+    return {
+        playerID: null,
+        doubleSend: 0,
+        opponentID: null,
+        key: 'hello',
+        ownData: {
+            name: null,
+            selection: null,
+            submitted: null
+        },
+        opponentData: {},
+        winnerID: null
+    }
+    },
+    props: ['name', 'gameID'],
+    methods: {
+        submitSelection(){
+            console.log('Submitted!')
+            this.ownData.submitted = true
+            this.doubleSend++
+            this.sendData()
+        },
+        generateGameID(){
+            //This function is only triggered if the player doesn't have a gameID.
+            let alpha = 'HLTPSANQS3MC7DEPDFNU7NCCJJ6ZWYNMSWGMZPV0MDD1FPVJH5FYFIZOWZIEUV9RV4U9759FG491JVZZZSDLRTCV9D8TQBUWYGV3'.split('')
+            let gameID = alpha.filter(() => {
+                return Math.round(Math.random())
+            }).filter(() => {
+                return Math.round(Math.random())
+            }).splice(2,6).join('')
+            this.gameID = gameID
+        },
+        sendData(){
+            db.collection("players").doc(this.gameID).update({
+                [this.playerID]: this.ownData
+            })
+        },
+        initializeGame(){
+            //Creates a firestore doc with the corresponding game ID
+             db.collection("players").doc(this.gameID).set({
+            })
+        },
+        declareWinner(){
+            //Checking if both have submitted or not
+            if(this.ownData.submitted && this.opponentData.submitted){
+                if(this.ownData.selection === 'rock'){
+                    if(this.opponentData.selection === 'paper') this.winnerID = this.opponentID
+                    if(this.opponentData.selection === 'scissor') this.winnerID = this.playerID
+                }
+                if(this.ownData.selection === 'paper'){
+                    if(this.opponentData.selection === 'scissor') this.winnerID = this.opponentID
+                    if(this.opponentData.selection === 'rock') this.winnerID = this.playerID
+                }
+                if(this.ownData.selection === 'scissor'){
+                    if(this.opponentData.selection === 'rock') this.winnerID = this.opponentID
+                    if(this.opponentData.selection === 'paper') this.winnerID = this.playerID
+                }
+            }
+        }
+    },
+    created(){
+        this.playerID = "two"
+        this.opponentID = "one" //Sets the playerID to be 2. but if the player doesn't have a gameID already, he'll be converted to player 1
+        if(!this.gameID){
+            //If gameID is null, create a new gameID
+            this.playerID = "one"
+            this.opponentID = "two"
+            this.generateGameID()
+            this.initializeGame()
+        }
+        //Storing data locally
+        this.ownData = {
+            name: this.name,
+            selection: null
+        }
+        //Sending data to the server
+        this.sendData()
+        //Pulling data and storing locally from firebase
+        //Listening for changes in the DB
+        db.collection("players").doc(this.gameID).onSnapshot(doc => {
+           //doc.data() contains an object containing everything (one ra two dubaiko)
+            this.ownData = doc.data()[this.playerID]
+            this.opponentData = doc.data()[this.opponentID]
+            console.log(doc.data()[this.playerID], doc.data()[this.opponentID])
+            this.declareWinner()
+        })
+    }
+}
+</script>
+
+<style scoped>
+
+</style> scoped>
+

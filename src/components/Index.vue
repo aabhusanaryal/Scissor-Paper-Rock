@@ -5,7 +5,10 @@
         <h2 class = 'teal-text'>Scissor Paper Rock</h2>
         <form @submit.prevent="enterGame">
           <label for="name">Enter your name:</label>
-          <input type="text" name="name" v-model="name">
+          <input type="text" name="name" v-model="name" autocomplete="off">
+          <label for="gameID">Enter code:(Leave blank if you don't have one)</label>
+          <input type="text" name="gameID" v-model="gameID" autocomplete="off">
+          <p class="red-text">{{feedback}}</p>
           <button class="btn teal">Play!</button>
         </form>
       </div>
@@ -20,11 +23,18 @@ export default {
   data() {
     return{
       name: null,
+      gameID: null,
+      feedback: null
     }
   },
   methods:{
     enterGame(){
-      console.log(this.name)
+      if(this.name){
+        this.$router.push({ name: 'GameScreen', params: {name: this.name, gameID: this.gameID} })
+      }
+      else {
+        this.feedback = 'Please enter your name'
+      }
     }
   },
   created(){
@@ -50,4 +60,5 @@ h2{
 button{
   margin: 30px;
 }
+
 </style>
