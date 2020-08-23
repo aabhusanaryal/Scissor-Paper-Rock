@@ -5,9 +5,19 @@
         <h2 class = 'teal-text'>Scissor Paper Rock</h2>
         <form @submit.prevent="enterGame">
           <label for="name">Enter your name:</label>
-          <input type="text" name="name" v-model="name" autocomplete="off">
-          <label for="gameID">Enter code:(Leave blank if you don't have one)</label>
-          <input type="text" name="gameID" v-model="gameID" autocomplete="off">
+            <input type="text" name="name" v-model="name" autocomplete="off">
+            
+          <div v-if="haveCode">
+            <label for="gameID">Enter code:</label>
+            <input type="text" name="gameID" v-model="gameID" autocomplete="off">
+            
+          </div>
+          <p>
+            <label>
+              <input type="checkbox" v-model="haveCode"/>
+              <span>Do you have a room code?</span>
+            </label>
+          </p>
           <p class="red-text">{{feedback}}</p>
           <button class="btn teal">Play!</button>
         </form>
@@ -17,11 +27,12 @@
 </template>
 
 <script>
-import db from '@/Firebase/init.js'
+// import db from '@/Firebase/init.js'
 export default {
   name: 'Index',
   data() {
     return{
+      haveCode: false,
       name: null,
       gameID: null,
       feedback: null
@@ -37,14 +48,14 @@ export default {
       }
     }
   },
-  created(){
-    db.collection('test').get()
-    .then(snapshot => {
-      snapshot.forEach(doc => {
-        console.log(doc.data())
-      });
-    })
-  }
+  // created(){
+  //   db.collection('test').get()
+  //   .then(snapshot => {
+  //     snapshot.forEach(doc => {
+  //       console.log(doc.data())
+  //     });
+  //   })
+  // }
 }
 </script>
 

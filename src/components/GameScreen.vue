@@ -40,13 +40,22 @@
                 <span v-if="ownData.submitted && opponentData.submitted">
                             Your choice: {{ownData.selection}}<br>
                             {{opponentData.name}}'s choice: {{opponentData.selection}}<br><br>
-                            <h2 v-if="winnerID===playerID" class="green-text">You win!</h2>
-                            <h2 v-else class="red-text">You lose!</h2>
+                            <span v-if="opponentData.selection===ownData.selection"><h2 class="yellow-text">It's a tie!</h2></span>
+                            <span v-else>
+                                <h2 v-if="winnerID===playerID" class="green-text">You win!</h2>
+                                <h2 v-else class="red-text">You lose!</h2>
+                            </span>
+                            <h4 v-if="opponentData.playAgain">{{opponentData.name}} wants to play again.</h4>
+                            <button @click="playAgain">Play again?</button>
+                            <h4 class="blue-text">{{playAgainResponse}}</h4>
                 </span>
             </div>
         </div>
         </span>
         <span v-else><p>Waiting for someone to join the game...</p></span>
+        <br>
+        <!-- <h1>Score:</h1><br>
+        {{ownData.name}}: {{ownData.score}}   -   {{opponentData.name}}: {{opponentData.score}} -->
     </div>
 </template>
 
@@ -63,16 +72,19 @@ export default{
         ownData: {
             name: null,
             selection: null,
-            submitted: null
+            submitted: null,
+            playAgain: false,
+            score: 0
         },
         opponentData: {},
-        winnerID: null
+        winnerID: null,
+        playAgainResponse: null,
     }
     },
     props: ['name', 'gameID'],
     methods: {
         submitSelection(){
-            console.log('Submitted!')
+            // console.log('Submitted!')
             this.ownData.submitted = true
             this.doubleSend++
             this.sendData()
@@ -99,20 +111,57 @@ export default{
         },
         declareWinner(){
             //Checking if both have submitted or not
+            //Draw mech is handled in template part
             if(this.ownData.submitted && this.opponentData.submitted){
                 if(this.ownData.selection === 'rock'){
-                    if(this.opponentData.selection === 'paper') this.winnerID = this.opponentID
-                    if(this.opponentData.selection === 'scissor') this.winnerID = this.playerID
+                    if(this.opponentData.selection === 'paper') {
+                        this.winnerID = this.opponentID
+                    }
+                    if(this.opponentData.selection === 'scissor') {
+                        this.winnerID = this.playerID
+                        this.incrementScore()
+                    }
                 }
                 if(this.ownData.selection === 'paper'){
-                    if(this.opponentData.selection === 'scissor') this.winnerID = this.opponentID
-                    if(this.opponentData.selection === 'rock') this.winnerID = this.playerID
+                    if(this.opponentData.selection === 'scissor') {
+                        this.winnerID = this.opponentID
+                    }
+                    if(this.opponentData.selection === 'rock') {
+                        this.winnerID = this.playerID
+                        this.incrementScore()
+                    }
                 }
                 if(this.ownData.selection === 'scissor'){
-                    if(this.opponentData.selection === 'rock') this.winnerID = this.opponentID
-                    if(this.opponentData.selection === 'paper') this.winnerID = this.playerID
+                    if(this.opponentData.selection === 'rock') {
+                        this.winnerID = this.opponentID
+                    }
+                    if(this.opponentData.selection === 'paper') {
+                        this.winnerID = this.playerID
+                        this.incrementScore()
+                    }
                 }
             }
+            // If both wants to playAgain, call rematch
+            if(this.ownData.playAgain && this.opponentData.playAgain)   this.rematch()
+        },
+        playAgain(){
+            //Called when a user clicks on play again
+            this.ownData.playAgain = true
+            this.winnerID = null
+            this.sendData()
+            this.playAgainResponse = "Rematch challenge sent!"
+        },
+        rematch(){
+            //Resets the game
+            this.ownData.selection = null
+            this.ownData.submitted = false
+            this.ownData.playAgain = false
+            this.playAgainResponse = null
+            this.sendData()
+        },
+        incrementScore(){
+            // this.ownData.score += 1
+            // this.sendData()
         }
     },
     created(){
@@ -128,7 +177,8 @@ export default{
         //Storing data locally
         this.ownData = {
             name: this.name,
-            selection: null
+            selection: null,
+            score: 0
         }
         //Sending data to the server
         this.sendData()
@@ -138,7 +188,7 @@ export default{
            //doc.data() contains an object containing everything (one ra two dubaiko)
             this.ownData = doc.data()[this.playerID]
             this.opponentData = doc.data()[this.opponentID]
-            console.log(doc.data()[this.playerID], doc.data()[this.opponentID])
+            // console.log(doc.data()[this.playerID], doc.data()[this.opponentID])
             this.declareWinner()
         })
     }
