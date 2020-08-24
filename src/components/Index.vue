@@ -19,6 +19,7 @@
             </label>
           </p>
           <p class="red-text">{{feedback}}</p>
+          <p class="red-text">{{feedGameID}}</p>
           <button class="btn teal">Play!</button>
         </form>
       </div>
@@ -27,7 +28,7 @@
 </template>
 
 <script>
-// import db from '@/Firebase/init.js'
+import db from '@/Firebase/init.js'
 export default {
   name: 'Index',
   data() {
@@ -35,19 +36,42 @@ export default {
       haveCode: false,
       name: null,
       gameID: null,
-      feedback: null
+      feedGameID: null,
+      feedback: null,
     }
   },
   methods:{
+    getData(){
+      db.collection('players').doc(this.gameID).get()
+      .then(doc => {
+        if(doc.data()){
+          if(doc.data().two) this.feedGameID = `This room is full!`
+          else this.redirect()
+          }
+        else this.feedGameID = `Please enter a correct code!`
+        console.log(doc.data())
+      })
+      .catch(err => {
+        this.validGameID = false
+        this.feedGameID = `Error: ${err}`
+      })
+    },
     enterGame(){
+      if (this.gameID){
+        this.getData()
+      }
+      else this.redirect()
+      },
+      redirect(){
       if(this.name){
-        this.$router.push({ name: 'GameScreen', params: {name: this.name, gameID: this.gameID} })
-      }
-      else {
-        this.feedback = 'Please enter your name'
-      }
-    }
-  },
+          this.$router.push({ name: 'GameScreen', params: {name: this.name, gameID: this.gameID} })
+        }
+        else {
+          this.feedback = 'Please enter your name'
+        }
+      },
+    },
+    
   // created(){
   //   db.collection('test').get()
   //   .then(snapshot => {
