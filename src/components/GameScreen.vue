@@ -4,36 +4,21 @@
 
         <!-- Checking if Opponent's data is received; and if yes showing details -->
         <span v-if="opponentData"><p>You're playing with {{opponentData.name}}</p>
-            <span v-if="opponentData.selection"><p>{{opponentData.name}} has made a selection!</p></span>
+        <span v-if="opponentData.selection"><p>{{opponentData.name}} has made a selection!</p></span>
             
 
-            <div class="selectionBox card">
+        <div class="selectionBox card">
             <div class="card-content">
                 <span v-if="!opponentData.selection"><p>Waiting for {{opponentData.name}} to make a selection...</p></span>
                 <div v-if="!ownData.submitted">
                     <span class="card-title">Please make a selection:</span>
                     <form @submit.prevent="submitSelection">
-                        <p>
-                        <label>
-                            <input name="group1" type="radio" value="scissor" v-model="ownData.selection"/>
-                            <span>Scissor</span>
-                        </label>
-                        </p>
-
-                        <p>
-                        <label>
-                            <input name="group1" type="radio" value="paper" v-model="ownData.selection"/>
-                            <span>Paper</span>
-                        </label>
-                        </p>
-
-                        <p>
-                        <label>
-                            <input name="group1" type="radio" value="rock" v-model="ownData.selection"/>
-                            <span>Rock</span>
-                        </label>
-                        </p>
-                        <input type="submit"><br><br>
+                        <div class="row">
+                            <Option name="scissor" :selection="this.ownData.selection" @selection="selectionMade"/>
+                            <Option name="paper" :selection="this.ownData.selection" @selection="selectionMade"/>
+                            <Option name="rock" :selection="this.ownData.selection" @selection="selectionMade"/>
+                        </div>
+                        <input type="submit" class="btn blue lighten-2"><br><br>
                         <p v-if="ownData.submitted" class="red-text">You've already submitted your selection!</p>
                     </form>
                 </div>
@@ -46,8 +31,8 @@
                                 <h2 v-else class="red-text">You lose!</h2>
                             </span>
                             <h4 v-if="opponentData.playAgain">{{opponentData.name}} wants to play again.</h4>
-                            <button @click="playAgain">Play again?</button>
-                            <h4 class="blue-text">{{playAgainResponse}}</h4>
+                            <button @click="playAgain" class="btn blue lighten-2">Play again?</button>
+                            <h4 class="blue lighten-2-text">{{playAgainResponse}}</h4>
                 </span>
             </div>
         </div>
@@ -61,28 +46,35 @@
 
 <script lang="ts">
 import db from '@/Firebase/init.js'
+import Option from './Options.vue' 
 export default{
     name: 'GameScreen',
     data() {
-    return {
-        playerID: null,
-        doubleSend: 0,
-        opponentID: null,
-        key: 'hello',
-        ownData: {
-            name: null,
-            selection: null,
-            submitted: null,
-            playAgain: false,
-            score: 0
-        },
-        opponentData: {},
-        winnerID: null,
-        playAgainResponse: null,
-    }
+        return {
+            playerID: null,
+            doubleSend: 0,
+            opponentID: null,
+            key: 'hello',
+            ownData: {
+                name: null,
+                selection: null,
+                submitted: null,
+                playAgain: false,
+                score: 0
+            },
+            opponentData: {},
+            winnerID: null,
+            playAgainResponse: null,
+        }
     },
     props: ['name', 'gameID'],
+    components: {
+        Option
+    },
     methods: {
+        selectionMade(selection){
+            this.ownData.selection = selection
+        },
         submitSelection(){
             // console.log('Submitted!')
             this.ownData.submitted = true

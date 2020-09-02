@@ -2,7 +2,7 @@
   <div class="welcome container">
       <div class="card">
       <div class="card-content center-align">
-        <h2 class = 'teal-text'>Scissor Paper Rock</h2>
+        <h2 class = 'blue-text lighten-2'>Scissor Paper Rock</h2>
         <form @submit.prevent="enterGame">
           <label for="name">Enter your name:</label>
             <input type="text" name="name" v-model="name" autocomplete="off" autofocus>
@@ -14,13 +14,13 @@
           </div>
           <p>
             <label>
-              <input type="checkbox" v-model="haveCode"/>
+              <input type="checkbox" v-model="haveCode" class=blue lighten-2 accent-3/>
               <span>Do you have a room code?</span>
             </label>
           </p>
           <p class="red-text">{{feedback}}</p>
           <p class="red-text">{{feedGameID}}</p>
-          <button class="btn teal">Play!</button>
+          <button class="btn blue lighten-2">Play!</button>
         </form>
       </div>
     </div>
@@ -95,5 +95,11 @@ h2{
 button{
   margin: 30px;
 }
-
+input[type=text]:focus{
+  border-bottom: 1px solid #64b5f6 !important;
+}
+input[type="checkbox"]:checked+span:not(.lever):before{
+     border-right: 2px solid #64b5f6 !important;
+    border-bottom: 2px solid #64b5f6 !important;
+}
 </style>
