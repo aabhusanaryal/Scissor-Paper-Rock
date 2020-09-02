@@ -23,16 +23,16 @@
                     </form>
                 </div>
                 <span v-if="ownData.submitted && opponentData.submitted">
-                            Your choice: {{ownData.selection}}<br>
-                            {{opponentData.name}}'s choice: {{opponentData.selection}}<br><br>
-                            <span v-if="opponentData.selection===ownData.selection"><h2 class="yellow-text">It's a tie!</h2></span>
-                            <span v-else>
-                                <h2 v-if="winnerID===playerID" class="green-text">You win!</h2>
-                                <h2 v-else class="red-text">You lose!</h2>
-                            </span>
-                            <h4 v-if="opponentData.playAgain">{{opponentData.name}} wants to play again.</h4>
-                            <button @click="playAgain" class="btn blue lighten-2">Play again?</button>
-                            <h4 class="blue lighten-2-text">{{playAgainResponse}}</h4>
+                    Your choice: {{ownData.selection}}<br>
+                    {{opponentData.name}}'s choice: {{opponentData.selection}}<br><br>
+                    <span v-if="opponentData.selection===ownData.selection"><h2 class="yellow-text">It's a tie!</h2></span>
+                    <span v-else>
+                        <h2 v-if="winnerID===playerID" class="green-text">You win!</h2>
+                        <h2 v-else class="red-text">You lose!</h2>
+                    </span>
+                    <h4 v-if="opponentData.playAgain">{{opponentData.name}} wants to play again.</h4>
+                    <button @click="playAgain" class="btn blue lighten-2">Play again?</button>
+                    <h4 class="blue lighten-2-text">{{playAgainResponse}}</h4>
                 </span>
             </div>
         </div>
@@ -178,7 +178,7 @@ export default{
         //Listening for changes in the DB
         db.collection("players").doc(this.gameID).onSnapshot(doc => {
            //doc.data() contains an object containing everything (one ra two dubaiko)
-            this.ownData = doc.data()[this.playerID]
+            // this.ownData = doc.data()[this.playerID]
             this.opponentData = doc.data()[this.opponentID]
             // console.log(doc.data()[this.playerID], doc.data()[this.opponentID])
             this.declareWinner()
