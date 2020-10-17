@@ -171,7 +171,7 @@ export default{
             // this.sendData()
         },
         copyURL() {
-        let Url = `localhost:8080/?code=${this.gameID}`
+        let Url = `https://scissor-paper-rock.hostman.site/?code=${this.gameID}`
         navigator.clipboard.writeText(Url)
         this.copied = true
         setTimeout(()=>{
