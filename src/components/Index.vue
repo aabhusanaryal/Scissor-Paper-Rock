@@ -2,7 +2,7 @@
   <div class="welcome container">
       <div class="card">
       <div class="card-content center-align">
-        <h2 class = 'blue-text lighten-2'>Scissor Paper Rock</h2>
+        <h2 class = 'blue-text lighten-2'>Scissor Paper Rock {{currentRouteName }}</h2>
         <form @submit.prevent="enterGame">
           <label for="name">Enter your name:</label>
             <input type="text" name="name" v-model="name" autocomplete="off" autofocus>
@@ -33,11 +33,16 @@ export default {
   name: 'Index',
   data() {
     return{
-      haveCode: false,
       name: null,
-      gameID: null,
+      gameID: this.$route.query.code,
       feedGameID: null,
       feedback: null,
+      haveCode: false
+    }
+  },
+  computed: {
+    code() {
+      return this.$route.query.code; //If the user already has some code
     }
   },
   methods:{
@@ -72,14 +77,11 @@ export default {
       },
     },
     
-  // created(){
-  //   db.collection('test').get()
-  //   .then(snapshot => {
-  //     snapshot.forEach(doc => {
-  //       console.log(doc.data())
-  //     });
-  //   })
-  // }
+  created(){
+    if(this.code){
+      this.haveCode = true
+    }
+  }
 }
 </script>
 

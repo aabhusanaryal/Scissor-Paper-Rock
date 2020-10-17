@@ -1,43 +1,51 @@
 <template>
     <div class="container game">
-        <h2>Hello, welcome {{ownData.name}} Game ID: {{gameID}}</h2>
+        <h3>Scissor Paper Rock</h3>
+        <h4>Game ID: {{gameID}}<i class="material-icons" ref = 'mylink' @click='copyURL' id="share-icon">share</i>   <span v-if='copied' id = "copied-prompt">Copied!</span></h4>
 
         <!-- Checking if Opponent's data is received; and if yes showing details -->
-        <span v-if="opponentData"><p>You're playing with {{opponentData.name}}</p>
-        <span v-if="opponentData.selection"><p>{{opponentData.name}} has made a selection!</p></span>
-            
-
-        <div class="selectionBox card">
-            <div class="card-content">
-                <span v-if="!opponentData.selection"><p>Waiting for {{opponentData.name}} to make a selection...</p></span>
-                <div v-if="!ownData.submitted">
-                    <span class="card-title">Please make a selection:</span>
-                    <form @submit.prevent="submitSelection">
-                        <div class="row">
-                            <Option name="scissor" :selection="this.ownData.selection" @selection="selectionMade"/>
-                            <Option name="paper" :selection="this.ownData.selection" @selection="selectionMade"/>
-                            <Option name="rock" :selection="this.ownData.selection" @selection="selectionMade"/>
-                        </div>
-                        <input type="submit" class="btn blue lighten-2"><br><br>
-                        <p v-if="ownData.submitted" class="red-text">You've already submitted your selection!</p>
-                    </form>
-                </div>
-                <span v-if="ownData.submitted && opponentData.submitted">
-                    Your choice: {{ownData.selection}}<br>
-                    {{opponentData.name}}'s choice: {{opponentData.selection}}<br><br>
-                    <span v-if="opponentData.selection===ownData.selection"><h2 class="yellow-text">It's a tie!</h2></span>
-                    <span v-else>
-                        <h2 v-if="winnerID===playerID" class="green-text">You win!</h2>
-                        <h2 v-else class="red-text">You lose!</h2>
-                    </span>
-                    <h4 v-if="opponentData.playAgain">{{opponentData.name}} wants to play again.</h4>
-                    <button @click="playAgain" class="btn blue lighten-2">Play again?</button>
-                    <h4 class="blue lighten-2-text">{{playAgainResponse}}</h4>
-                </span>
-            </div>
+        <div id = "scoreboard">
+            <span v-if="!opponentData"><p>Waiting for someone to join the game...</p></span>
+            <span v-else><p>{{ownData.name}}({{ownData.score}}) vs {{opponentData.name}}({{opponentData.score}})</p></span>
         </div>
+
+        
+        <span v-if="opponentData">
+            <span v-if="opponentData.selection"><p>{{opponentData.name}} has made a selection!</p></span>
+            <div class="selectionBox card">
+                <div class="card-content">
+                    <span v-if="!opponentData.selection"><p>Waiting for {{opponentData.name}} to make a selection...</p></span>
+                    <div v-if="!ownData.submitted">
+                        <span class="card-title">Please make a selection:</span>
+                        <form @submit.prevent="submitSelection">
+                            <div class="row">
+                                <Option name="scissor" :selection="this.ownData.selection" @selection="selectionMade"/>
+                                <Option name="paper" :selection="this.ownData.selection" @selection="selectionMade"/>
+                                <Option name="rock" :selection="this.ownData.selection" @selection="selectionMade"/>
+                            </div>
+                            <input type="submit" class="btn blue lighten-2"><br><br>
+                            <p v-if="ownData.submitted" class="red-text">You've already submitted your selection!</p>
+                        </form>
+                    </div>
+                    <span v-if="ownData.submitted && opponentData.submitted">
+                        <span v-if="winnerID === playerID" class="green-text">You've won!</span>
+                        <span v-if="winnerID === opponentID" class="red-text">You've lost!</span>
+                        <span v-if="winnerID === 'tie'" class="yellow-text">It's a tie!</span>
+                        <!-- Your choice: {{ownData.selection}}<br>
+                        {{opponentData.name}}'s choice: {{opponentData.selection}}<br><br>
+                        <span v-if="opponentData.selection===ownData.selection"><h2 class="yellow-text">It's a tie!</h2></span>
+                        <span v-else>
+                            <h2 v-if="winnerID===playerID" class="green-text">You win!</h2>
+                            <h2 v-else class="red-text">You lose!</h2>
+                        </span> -->
+                        <br>
+                        <h4 v-if="opponentData.playAgain">{{opponentData.name}} wants to play again.</h4>
+                        <button @click="playAgain" class="btn blue lighten-2">Play again?</button>
+                        <h4 class="blue lighten-2-text">{{playAgainResponse}}</h4> 
+                    </span>
+                </div>
+            </div>
         </span>
-        <span v-else><p>Waiting for someone to join the game...</p></span>
         <br>
         <!-- <h1>Score:</h1><br>
         {{ownData.name}}: {{ownData.score}}   -   {{opponentData.name}}: {{opponentData.score}} -->
@@ -65,6 +73,7 @@ export default{
             opponentData: {},
             winnerID: null,
             playAgainResponse: null,
+            copied: false,
         }
     },
     props: ['name', 'gameID'],
@@ -105,31 +114,34 @@ export default{
             //Checking if both have submitted or not
             //Draw mech is handled in template part
             if(this.ownData.submitted && this.opponentData.submitted){
-                if(this.ownData.selection === 'rock'){
+                if(this.ownData.selection === this.opponentData.selection){
+                    this.winnerID = 'tie'
+                }
+                else if(this.ownData.selection === 'rock'){
                     if(this.opponentData.selection === 'paper') {
                         this.winnerID = this.opponentID
                     }
                     if(this.opponentData.selection === 'scissor') {
                         this.winnerID = this.playerID
-                        this.incrementScore()
+                        this.incrementScore('ownData')
                     }
                 }
-                if(this.ownData.selection === 'paper'){
+                else if(this.ownData.selection === 'paper'){
                     if(this.opponentData.selection === 'scissor') {
                         this.winnerID = this.opponentID
                     }
                     if(this.opponentData.selection === 'rock') {
                         this.winnerID = this.playerID
-                        this.incrementScore()
+                        this.incrementScore('ownData')
                     }
                 }
-                if(this.ownData.selection === 'scissor'){
+                else if(this.ownData.selection === 'scissor'){
                     if(this.opponentData.selection === 'rock') {
                         this.winnerID = this.opponentID
                     }
                     if(this.opponentData.selection === 'paper') {
                         this.winnerID = this.playerID
-                        this.incrementScore()
+                        this.incrementScore('ownData')
                     }
                 }
             }
@@ -146,14 +158,37 @@ export default{
         rematch(){
             //Resets the game
             this.ownData.selection = null
+            this.opponentData.selection = false
             this.ownData.submitted = false
+            this.opponentData.submitted = false
             this.ownData.playAgain = false
             this.playAgainResponse = null
             this.sendData()
         },
-        incrementScore(){
-            // this.ownData.score += 1
+        incrementScore(whos){
+            console.log(whos)
+            // this[whos].score++
             // this.sendData()
+        },
+        copyURL() {
+        let Url = `localhost:8080/?code=${this.gameID}`
+        navigator.clipboard.writeText(Url)
+        this.copied = true
+        setTimeout(()=>{
+            this.copied = false
+        }, 5000)
+        }
+    },
+    watch: {
+        "ownData.submitted": function() {
+            if(this.ownData.submitted && this.opponentData.submitted){
+                this.declareWinner()
+            }
+        },
+        "opponentData.submitted": function() {
+            if(this.ownData.submitted && this.opponentData.submitted){
+                this.declareWinner()
+            }
         }
     },
     created(){
@@ -189,5 +224,23 @@ export default{
 
 <style scoped>
 
-</style> scoped>
+#scoreboard{
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: red;
+    color: white;
+    text-align: center;
+}
+
+#share-icon{
+    cursor: pointer;
+}
+
+#copied-prompt{
+    font-size: 20px;
+    color: greenyellow
+}
+</style>
 

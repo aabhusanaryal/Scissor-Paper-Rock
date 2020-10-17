@@ -1,8 +1,8 @@
 <template>
-    <div class="col s12 m4">
+    <div class="col s4 m4">
         <div :class="selection === this.name? 'card green': 'card white'" @click="selectionMade">
             <div class="card-content blue-text">
-            <span class="card-title"><img :src="`/img/${name}.png`" width="130px" :alt="`${name}`"></span>
+            <span class="card-title"><img :src="`/img/${name}.png`" :alt="`${name}`"></span>
             <span>{{name.toUpperCase()}}</span>
             </div>
         </div>
@@ -26,3 +26,14 @@ export default{
     props: ['name', 'selection']
 }
 </script>
+
+<style scoped>
+img{
+    width: 120px;
+}
+@media (max-width: 768px) {
+    img{
+        width: 60px;
+    }
+}
+</style>
