@@ -1,24 +1,9 @@
-# scissor-paper-rock
+# Scissor Paper Rock
+This is a multiplayer scissor paper rock app built on Vue. Firebase's realtime database (Firestore) has been employed to make this game playable.
+You can play the game [here](https://spr.aabhusanaryal.com.np).
+### Known Bugs
+1. The scoreboard is broken.
+2. You can submit the form without selecting any options.
+> When do you plan to fix them?
 
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Idk, give me some motivation :)
